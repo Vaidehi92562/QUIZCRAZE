@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Singleplayer Mode | Quiz Craze</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Press Start 2P', cursive; }
+        body {
+            background: linear-gradient(45deg,#ff4141, #ff4b2b, #ff416c);
+            color: yellow;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Move everything to the right */
+            overflow: hidden;
+            animation: backgroundMove 10s linear infinite alternate;
+            padding-right: 5%;
+        }
+
+        @keyframes backgroundMove {
+            from { background-position: 0% 0%; }
+            to { background-position: 100% 100%; }
+        }
+
+        /* Left side for fixed image */
+        .image-container {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 40%;
+            height: 100vh;
+            background: url('/static/image7.jpeg') no-repeat center center;
+            background-size: cover;
+        }
+
+        /* Right side for category selection */
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px cyan;
+            border: 5px solid yellow;
+            display: inline-block;
+            width: 50%;
+        }
+
+        h1 {
+            font-size: 30px;
+            color: #ffcc00;
+            text-shadow: 2px 2px 8px cyan;
+            margin-bottom: 20px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .category {
+            padding: 15px;
+            font-size: 18px;
+            background: #222;
+            color: cyan;
+            border: 3px solid yellow;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 8px magenta;
+            box-shadow: 0 0 10px yellow;
+        }
+
+        .category:hover {
+            background: #ffcc00;
+            color: black;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px magenta;
+        }
+
+        .start-btn {
+            margin-top: 25px;
+            padding: 15px 30px;
+            font-size: 22px;
+            background: linear-gradient(90deg, cyan, magenta);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8);
+            transition: 0.3s;
+            animation: electricShock 1.5s infinite alternate ease-in-out;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px magenta;
+        }
+
+        @keyframes electricShock {
+            from { box-shadow: 0 0 20px cyan; }
+            to { box-shadow: 0 0 40px magenta, 0 0 60px yellow; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fixed Image on Left -->
+    <div class="image-container"></div>
+
+    <!-- Right Side - Category Selection Box -->
+    <div class="container">
+        <h1>🎮 Choose Your Category</h1>
+        
+        <div class="category-grid">
+            <div class="category" onclick="selectCategory('C')">C</div>
+            <div class="category" onclick="selectCategory('C++')">C++</div>
+            <div class="category" onclick="selectCategory('Python')">Python</div>
+            <div class="category" onclick="selectCategory('Java')">Java</div>
+            <div class="category" onclick="selectCategory('HTML')">HTML</div>
+            <div class="category" onclick="selectCategory('CSS')">CSS</div>
+            <div class="category" onclick="selectCategory('JavaScript')">JavaScript</div>
+        </div>
+
+        <button class="start-btn" onclick="startQuiz()">🚀 Start Quiz</button>
+    </div>
+
+    <script>
+        let selectedCategory = "";
+
+        function selectCategory(category) {
+            selectedCategory = category;
+            document.querySelectorAll('.category').forEach(btn => {
+                btn.style.background = "#222";
+                btn.style.color = "cyan";
+            });
+            event.target.style.background = "#ffcc00";
+            event.target.style.color = "black";
+            console.log("Selected:", category);
+        }
+
+        function startQuiz() {
+            if (!selectedCategory) {
+                alert("Please select a category!");
+                return;
+            }
+            window.location.href = `/singleplayer_quiz?category=${selectedCategory}`;
+        }
+
+        async function fetchQuestions() {
+            let category = new URLSearchParams(window.location.search).get('category');
+        
+            try {
+                const response = await fetch(`/get_questions?category=${category}`);
+                const data = await response.json();
+        
+                if (!response.ok) throw new Error(data.error || "Failed to fetch questions");
+        
+                questions = data.map(q => ({
+                    question: q.question || "Question not found",
+                    optionA: q.optionA || "Option A missing",
+                    optionB: q.optionB || "Option B missing",
+                    optionC: q.optionC || "Option C missing",
+                    optionD: q.optionD || "Option D missing",
+                    correctAnswer: q.correctAnswer || "Not available"
+                }));
+        
+                if (questions.length === 0) throw new Error("No questions found!");
+        
+                document.getElementById("quiz-container").style.display = "block";
+                loadQuestion();
+            } catch (error) {
+                document.getElementById("question-box").innerHTML = `<h2 style="color: red;">⚠️ ${error.message}</h2>`;
+            }
+        }
+        
+        // Ensure this function runs on page load
+        window.onload = function() {
+            fetchQuestions();
+        };
+        
+
+
+
+
+
+
+
+
+    </script>
+
+</body>
+</html>

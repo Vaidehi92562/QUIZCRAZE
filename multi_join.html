@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join a Game</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Bangers', cursive;
+            background: linear-gradient(135deg, #2c3e50, #000000);
+            color: white;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-shadow: 4px 4px 0px #ff0000, 6px 6px 10px yellow;
+            letter-spacing: 3px;
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 4px 4px 0px #ff0000, 6px 6px 10px yellow; }
+            100% { text-shadow: 4px 4px 5px #ffcc00, 6px 6px 15px red; }
+        }
+
+        label {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .input-box {
+            width: 60%;
+            padding: 15px;
+            font-size: 1.5rem;
+            border: 4px solid black;
+            background: #ffcc00;
+            color: black;
+            font-family: 'Bangers', cursive;
+            text-align: center;
+            transition: 0.3s;
+            box-shadow: 6px 6px 0px black;
+        }
+
+        .input-box:focus {
+            outline: none;
+            transform: scale(1.1);
+            box-shadow: 8px 8px 0px black;
+        }
+
+        .btn {
+            background: red;
+            color: white;
+            font-size: 2rem;
+            padding: 15px 30px;
+            border: 5px solid black;
+            cursor: pointer;
+            font-family: 'Bangers', cursive;
+            transition: all 0.2s ease-in-out;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 6px 6px 0px black;
+        }
+
+        .btn:hover {
+            background: yellow;
+            color: black;
+            transform: scale(1.1) rotate(-2deg);
+            box-shadow: 8px 8px 0px black;
+        }
+
+        .right-panel {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #1e1e1e;
+            border-left: 10px solid black;
+            padding: 20px;
+        }
+
+        .comic-image {
+            width: 80%;
+            max-width: 550px;
+            border: 10px solid black;
+            box-shadow: 10px 10px 0px black;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .comic-image:hover {
+            transform: scale(1.1) rotate(-3deg);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="left-panel">
+        <h1>JOIN A MULTIPLAYER GAME</h1>
+        <label for="gameCode">ENTER GAME CODE:</label>
+        <input type="text" id="gameCode" class="input-box" placeholder="123456">
+        <button class="btn" onclick="joinGame()">JOIN GAME</button>
+    </div>
+
+    <div class="right-panel">
+        <img src="https://th.bing.com/th/id/OIG1.iLodYONCOs9PPrIDfQg9?w=1024&h=1024&rs=1&pid=ImgDetMain" alt="Join Game Image" class="comic-image">
+    </div>
+
+    <script>
+        let socket = io();
+        let username = sessionStorage.getItem("username");
+
+        if (!username) {
+            username = prompt("Enter your username:");
+            sessionStorage.setItem("username", username);
+        }
+
+        function joinGame() {
+            const gameCode = document.getElementById("gameCode").value.trim();
+            if (!gameCode) {
+                alert("Please enter a game code!");
+                return;
+            }
+
+            fetch('/join_game', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gameCode: gameCode, username: username, is_host: 0 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    socket.emit("player_joined", { gameCode, username });
+                    window.location.href = `/multi_lobby?gameCode=${gameCode}`;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+
+</body>
+</html>

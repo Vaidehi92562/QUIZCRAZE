@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Result</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Glowing Background Effects */
+        .glow {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.2);
+            filter: blur(100px);
+            border-radius: 50%;
+            animation: float 6s infinite alternate ease-in-out;
+        }
+
+        .glow:nth-child(1) { top: 5%; left: 10%; }
+        .glow:nth-child(2) { bottom: 10%; right: 15%; }
+        .glow:nth-child(3) { bottom: 5%; left: 40%; }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-20px); }
+        }
+
+        /* Layout Container */
+        .result-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 80%;
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 10px 10px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Left Image Section */
+        .left-image {
+            width: 45%;
+        }
+
+        .left-image img {
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Right Results Section */
+        .right-content {
+            width: 50%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin: 15px 0;
+        }
+
+        /* Score Box */
+        .score-box {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: inline-block;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            margin: 15px;
+            padding: 15px 30px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: white;
+            background: #ff6a00;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            background: yellow;
+            color: black;
+            box-shadow: 7px 7px 15px black;
+            transform: scale(1.05);
+        }
+
+        /* 🎉 Confetti Canvas */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Confetti Canvas 🎉 -->
+    <canvas id="confetti"></canvas>
+
+    <!-- Floating Glows -->
+    <div class="glow"></div>
+    <div class="glow"></div>
+    <div class="glow"></div>
+
+    <div class="result-container">
+        
+        <!-- Left Image -->
+        <div class="left-image">
+            <img src="https://th.bing.com/th/id/OIG4.JxDsgnoZAXhKp49oa5td?w=1024&h=1024&rs=1&pid=ImgDetMain">
+        </div>
+
+        <!-- Right Content -->
+        <div class="right-content">
+            <h1>🏆 Quiz Completed! 🏆</h1>
+            <p><strong>Game Code:</strong> {{ game_code }}</p>
+            <p class="score-box">🎯 Score: {{ score }}</p>
+            <p class="score-box">⏳ Time Taken: {{ time_taken }} seconds</p>
+
+            <a href="/" class="btn">🏠 Back to Home</a>
+            <a href="/leaderboard?gameCode={{ game_code }}" class="btn">📊 View Leaderboard</a>
+        </div>
+
+    </div>
+
+    <!-- 🎉 Confetti Animation Script -->
+    <script>
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const confettiPieces = [];
+        const colors = ['#ff0', '#ff5722', '#00e676', '#2196f3', '#ff4081'];
+
+        for (let i = 0; i < 200; i++) {
+            confettiPieces.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 10 + 5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speedY: Math.random() * 3 + 2,
+                speedX: (Math.random() - 0.5) * 3
+            });
+        }
+
+        function updateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            confettiPieces.forEach((p, i) => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+
+                if (p.y > canvas.height) confettiPieces[i].y = 0;
+                if (p.x > canvas.width || p.x < 0) confettiPieces[i].x = Math.random() * canvas.width;
+
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+
+            requestAnimationFrame(updateConfetti);
+        }
+
+        updateConfetti();
+
+        // 🎉 Stop confetti after 7 seconds
+        setTimeout(() => { confettiPieces.length = 0; }, 7000);
+    </script>
+
+</body>
+</html>

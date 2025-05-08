@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🚀 Ultimate Quiz Leaderboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+
+        /* 🌌 Futuristic Background */
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #240b36, #c31432);
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* ⚡ Leaderboard Container */
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            margin: 30px auto;
+            width: 65%;
+            border-radius: 20px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* 🛸 Game Code Input */
+        input {
+            padding: 12px;
+            width: 280px;
+            border: 2px solid #ffcc00;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ffcc00, #ff9900);
+            color: black;
+            padding: 14px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0px 4px 10px rgba(255, 204, 0, 0.6);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #ffdd55, #ff6600);
+            transform: scale(1.05);
+        }
+
+        /* 🚀 Leaderboard Table */
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: slideUp 1s ease-in-out;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        th {
+            background: linear-gradient(135deg, #ffcc00, #ff9900);
+            color: black;
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transition: 0.3s;
+        }
+
+        /* 👑 Winner Styling */
+        .winner {
+            font-size: 22px;
+            font-weight: bold;
+            color: #28ff00;
+            text-shadow: 0px 0px 10px #28ff00;
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0px 0px 5px #ffcc00; }
+            100% { text-shadow: 0px 0px 15px #ffff00; }
+        }
+
+        /* ✨ Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ❌ Error Message */
+        .error {
+            color: #ff4d4d;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>🚀 Ultimate Quiz Leaderboard</h1>
+    <div class="container">
+        <h3>🔍 Enter Game Code:</h3>
+        <form action="/leaderboard" method="GET">
+            <input type="text" name="gameCode" placeholder="Enter Game Code" required>
+            <button type="submit">View Leaderboard</button>
+        </form>
+    </div>
+
+    {% if error %}
+        <p class="error">❌ {{ error }}</p>
+    {% endif %}
+
+    {% if players %}
+        <div class="container">
+            <h2>🎯 Leaderboard for Game Code: {{ game_code }}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>🏅 Rank</th>
+                        <th>👤 Player</th>
+                        <th>🌟 Score</th>
+                        <th>⏳ Time Taken</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in players %}
+                        <tr>
+                            <td>
+                                {% if loop.index == 1 %}
+                                    <span class="winner">👑 WINNER</span>
+                                {% else %}
+                                    {{ loop.index }}
+                                {% endif %}
+                            </td>
+                            <td>{{ player.username }}</td>
+                            <td>{{ player.score }}</td>
+                            <td>{{ player.time_taken }} sec</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host a Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #ffdd57, #ff5722);
+            font-family: 'Bangers', cursive;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: space-around;
+            padding: 50px;
+        }
+
+        .left-panel {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .comic-image {
+            width: 90%;
+            max-width: 550px;
+            border: 10px solid black;
+            box-shadow: 10px 10px 0px black;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .comic-image:hover {
+            transform: scale(1.1) rotate(-3deg);
+        }
+
+        .right-panel {
+            width: 40%;
+            background: white;
+            padding: 40px;
+            border: 10px solid black;
+            box-shadow: 10px 10px 0px black;
+            text-align: center;
+            position: relative;
+            animation: pop-in 0.5s ease-out;
+        }
+
+        @keyframes pop-in {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: #ff0000;
+            text-shadow: 4px 4px 0px black, 6px 6px 10px yellow;
+            position: relative;
+        }
+
+        label {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        select {
+            width: 80%;
+            padding: 15px;
+            font-size: 1.8rem;
+            border: 4px solid black;
+            font-family: 'Bangers', cursive;
+        }
+
+        .btn {
+            background: red;
+            color: white;
+            font-size: 2rem;
+            padding: 15px 30px;
+            border: 5px solid black;
+            cursor: pointer;
+            font-family: 'Bangers', cursive;
+            transition: all 0.2s ease-in-out;
+            display: inline-block;
+            margin-top: 20px;
+            box-shadow: 5px 5px 0px black;
+        }
+
+        .btn:hover {
+            background: yellow;
+            color: black;
+            transform: scale(1.1) rotate(-2deg);
+            box-shadow: 7px 7px 0px black;
+        }
+
+        .burst-effect {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: url('https://i.imgur.com/OhF4v9B.png') no-repeat center;
+            background-size: contain;
+            width: 150px;
+            height: 150px;
+            animation: burst 0.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes burst {
+            0% { transform: translateX(-50%) scale(1); }
+            100% { transform: translateX(-50%) scale(1.1); }
+        }
+
+    </style>
+    <script>
+        function createGame() {
+            const category = document.getElementById("category").value;
+            let username = sessionStorage.getItem("username");
+
+            if (!username) {
+                username = prompt("Enter your username:");
+                sessionStorage.setItem("username", username);
+            }
+
+            fetch("/create_game", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ category, username })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.game_code) {
+                    window.location.href = `/multi_lobby?gameCode=${data.game_code}`;
+                } else {
+                    alert("Error creating game!");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <div class="left-panel">
+            <img src="https://th.bing.com/th/id/OIG4.d6MtBEZQ_WhRxBNhMBXw?pid=ImgGn" alt="Host Game Image" class="comic-image">
+        </div>
+
+        <div class="right-panel">
+            <div class="burst-effect"></div>
+            <h1>HOST A GAME</h1>
+            <label for="category">SELECT CATEGORY:</label>
+            <select id="category">
+                <option value="C">C</option>
+                <option value="C++">C++</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option>
+                <option value="HTML">HTML</option>
+                <option value="CSS">CSS</option>
+                <option value="JavaScript">JavaScript</option>
+            </select>
+            <button class="btn" onclick="createGame()">CREATE GAME</button>
+        </div>
+    </div>
+
+</body>
+</html>

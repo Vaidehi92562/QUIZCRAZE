@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 Profile | Quiz Craze</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Press Start 2P', cursive; }
+        body {
+            background: linear-gradient(135deg, #ff0099, #ff8800, #00ffff);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 🌟 Background Retro Grid */
+        .retro-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/8-bit-tile.png');
+            opacity: 0.2;
+        }
+
+        /* 🎭 Profile Card */
+        .profile-container {
+            position: relative;
+            width: 400px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 10px 10px 0px black;
+            border: 4px solid black;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 🔥 Glitchy Username */
+        .glitch {
+            font-size: 24px;
+            color: black;
+            text-shadow: 3px 3px 0px yellow, -3px -3px 0px cyan;
+            animation: glitch 0.2s infinite alternate;
+        }
+
+        @keyframes glitch {
+            from { text-shadow: 3px 3px 0px yellow, -3px -3px 0px cyan; }
+            to { text-shadow: -3px -3px 0px yellow, 3px 3px 0px cyan; }
+        }
+
+        /* 🎭 Avatar */
+        .avatar-box {
+            width: 120px;
+            height: 120px;
+            background: yellow;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: black;
+            margin: 15px auto;
+            border: 3px solid black;
+            box-shadow: 5px 5px 0px black;
+            overflow: hidden;
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* 📊 Stats Box */
+        .stats-box {
+            background: black;
+            color: yellow;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px auto;
+            border: 3px solid yellow;
+            box-shadow: 5px 5px 0px yellow;
+        }
+
+        /* 🎨 Buttons */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .profile-btn {
+            background: black;
+            color: cyan;
+            font-size: 16px;
+            padding: 10px;
+            border: 3px solid black;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 0px black;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .profile-btn:hover {
+            transform: scale(1.1);
+            background: red;
+            color: white;
+            box-shadow: 8px 8px 0px black;
+        }
+
+        /* 🎭 Random Avatar Generator */
+        .change-avatar {
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+            color: blue;
+        }
+
+        .change-avatar:hover {
+            color: red;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="retro-grid"></div>
+
+    <div class="profile-container">
+        <h2 class="glitch">🚀 {{ session['username'] if 'username' in session else 'Player' }}</h2>
+
+        <div class="avatar-box">
+            <img id="avatar" src="https://i.imgur.com/Ia4NmMS.png" alt="Avatar">
+        </div>
+        <p class="change-avatar" onclick="changeAvatar()">🎭 Change Avatar</p>
+
+        <div class="stats-box">🏆 High Score: <span id="high-score">0</span></div>
+        <div class="stats-box">🎮 Games Played: <span id="games-played">0</span></div>
+        <div class="stats-box">🏅 Rank: <span id="rank">Beginner</span></div>
+
+        <div class="button-container">
+            <button class="profile-btn" onclick="window.location.href='/dashboard'">🔙 Back to Dashboard</button>
+            <button class="profile-btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // 🚀 Avatar Generator (Random Funny Avatars)
+        const avatars = [
+            "https://www.pngarts.com/files/11/Avatar-Transparent-Image.png",
+            "https://pre00.deviantart.net/7785/th/pre/i/2017/188/8/c/4ortified_s_avatar__transparent__by_icantbecrushed-dbbg74o.png",
+            "https://static.vecteezy.com/system/resources/previews/008/481/922/original/avatar-cartoon-in-flat-style-png.png",
+            "https://png.pngtree.com/png-vector/20230509/ourmid/pngtree-avatar-woman-glasses-vector-png-image_7090474.png",
+            "https://png.pngtree.com/png-clipart/20230801/original/pngtree-avatar-with-a-cute-funny-raccoon-picture-image_7808964.png"
+        ];
+
+        function changeAvatar() {
+            let newAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+            document.getElementById("avatar").src = newAvatar;
+        }
+
+        // 🚀 Mock Stats (Replace with DB values later)
+        document.getElementById("high-score").innerText = Math.floor(Math.random() * 1000);
+        document.getElementById("games-played").innerText = Math.floor(Math.random() * 100);
+        document.getElementById("rank").innerText = ["Beginner", "Pro", "Legend", "Quiz King"][Math.floor(Math.random() * 4)];
+
+        // 🚀 Logout Function
+        function logout() {
+            window.location.href = "/logout";
+        }
+    </script>
+</body>
+</html>

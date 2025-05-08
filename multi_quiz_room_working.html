@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Room</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .question-container {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            width: 50%;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .option {
+            display: block;
+            margin: 10px;
+            cursor: pointer;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        #submit-btn {
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Code: <span id="game_code">{{ game_code }}</span></h1>
+    <h2>Welcome, <span id="username">{{ username }}</span></h2>
+    
+    <h1>Quiz Room - Game Code: <span id="game_code">{{ game_code }}</span></h1>
+    <h2>Player: <span id="username">{{ username }}</span></h2>
+    <h3 id="timer">Time: <span id="time-counter">0</span> seconds</h3>
+
+    <div class="question-container" id="question-container">
+        <h3 id="question-text"></h3>
+        <form id="quiz-form">
+            <label class="option" onclick="selectAnswer('{{ question.id }}', '1')">
+                <input type="radio" name="answer-{{ question.id }}" value="1"> {{ question.option1 }}
+            </label>
+            <label class="option" onclick="selectAnswer('{{ question.id }}', '2')">
+                <input type="radio" name="answer-{{ question.id }}" value="2"> {{ question.option2 }}
+            </label>
+            <label class="option" onclick="selectAnswer('{{ question.id }}', '3')">
+                <input type="radio" name="answer-{{ question.id }}" value="3"> {{ question.option3 }}
+            </label>
+            <label class="option" onclick="selectAnswer('{{ question.id }}', '4')">
+                <input type="radio" name="answer-{{ question.id }}" value="4"> {{ question.option4 }}
+            </label>
+        </form>
+        
+    </div>
+
+    <button id="next-question" onclick="nextQuestion()">Next Question</button>
+    <button id="submit-btn" onclick="submitQuiz()">Submit Quiz</button>
+
+    <script>
+        let questions = {{ questions | tojson }};
+        let currentIndex = 0;
+        let answers = {};
+        let startTime = Date.now();
+
+        function startTimer() {
+            setInterval(() => {
+                let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById("time-counter").innerText = elapsedTime;
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= questions.length) {
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("next-question").style.display = "none";
+                document.getElementById("submit-btn").style.display = "block";
+                return;
+            }
+
+            let q = questions[currentIndex];
+            document.getElementById("question-text").innerText = q.question;
+            document.getElementById("option1").innerText = q.option1;
+            document.getElementById("option2").innerText = q.option2;
+            document.getElementById("option3").innerText = q.option3;
+            document.getElementById("option4").innerText = q.option4;
+        }
+
+        function nextQuestion() {
+            let selectedOption = document.querySelector('input[name="answer"]:checked');
+            if (!selectedOption) {
+                alert("Please select an answer before proceeding.");
+                return;
+            }
+
+            answers[questions[currentIndex].id] = selectedOption.value;
+            currentIndex++;
+            document.getElementById("quiz-form").reset();
+            loadQuestion();
+        }
+
+      
+
+     
+
+       
+        let userAnswers = {};  // ✅ Ensure this is defined globally
+    let startTime = new Date();  // ✅ Start the timer when page loads
+
+    function selectAnswer(questionId, selectedOption) {
+        userAnswers[questionId] = selectedOption;  // ✅ Store user selection
+        console.log("✅ Updated Answers:", userAnswers);  // Debugging
+    }
+
+    function submitQuiz() {
+        let gameCode = "{{ game_code }}";  
+        let username = "{{ username | safe }}";  
+        let elapsedTime = Math.floor((new Date() - startTime) / 1000);  // ✅ Calculate time correctly
+
+        console.log(`🚀 Submitting Quiz - GameCode: ${gameCode}, Username: ${username}, Time Taken: ${elapsedTime}`);
+        console.log("✅ Answers Being Sent: ", userAnswers);
+
+        fetch("/submit_quiz", {
+            method: "POST",
+            body: JSON.stringify({
+                gameCode: gameCode,
+                username: username,
+                answers: userAnswers,
+                timeTaken: elapsedTime  
+            }),
+            headers: { "Content-Type": "application/json" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("✅ Quiz Submitted Successfully! Redirecting...");
+                window.location.href = data.redirect_url;  // ✅ Redirect Correctly
+            } else {
+                alert("❌ Error submitting quiz: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error("❌ Submission Error:", error);
+            alert("❌ Failed to submit quiz! Please try again.");
+        });
+    }
+
+        startTimer();
+        loadQuestion();
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Room</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        .question-container {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            width: 50%;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .option {
+            display: block;
+            margin: 10px;
+            cursor: pointer;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        #submit-btn {
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Code: <span id="game_code">{{ game_code }}</span></h1>
+    <h2>Welcome, <span id="username">{{ username }}</span></h2>
+    
+    <h3 id="timer">Time: <span id="time-counter">0</span> seconds</h3>
+
+    <div class="question-container" id="question-container">
+        <h3 id="question-text"></h3>
+        <div id="options-container"></div>
+    </div>
+
+    <button id="next-question" onclick="nextQuestion()">Next Question</button>
+    <button id="submit-btn" onclick="submitQuiz()">Submit Quiz</button>
+
+    <script>
+        let questions = {{ questions | tojson }};
+        let currentIndex = 0;
+        let answers = {};
+        let startTime = Date.now();
+    
+        function startTimer() {
+            setInterval(() => {
+                let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById("time-counter").innerText = elapsedTime;
+            }, 1000);
+        }
+    
+        function loadQuestion() {
+            if (currentIndex >= questions.length) {
+                document.getElementById("question-container").style.display = "none";
+                document.getElementById("next-question").style.display = "none";
+                document.getElementById("submit-btn").style.display = "block";
+                return;
+            }
+    
+            let q = questions[currentIndex];
+    
+            document.getElementById("question-text").innerText = q.question;
+    
+            let optionsContainer = document.getElementById("options-container");
+            optionsContainer.innerHTML = `
+                <label><input type="radio" name="answer" value="1"> ${q.option1}</label><br>
+                <label><input type="radio" name="answer" value="2"> ${q.option2}</label><br>
+                <label><input type="radio" name="answer" value="3"> ${q.option3}</label><br>
+                <label><input type="radio" name="answer" value="4"> ${q.option4}</label><br>
+            `;
+        }
+    
+        function nextQuestion() {
+            let selectedOption = document.querySelector('input[name="answer"]:checked');
+            if (!selectedOption) {
+                alert("Please select an answer before proceeding.");
+                return;
+            }
+    
+            answers[questions[currentIndex].id] = selectedOption.value;
+            currentIndex++;
+            loadQuestion();
+        }
+    
+        function submitQuiz() {
+            let gameCode = "{{ game_code }}";  
+            let username = "{{ username | safe }}";  
+            let elapsedTime = Math.floor((new Date() - startTime) / 1000);
+    
+            fetch("/submit_quiz", {
+                method: "POST",
+                body: JSON.stringify({
+                    gameCode: gameCode,
+                    username: username,
+                    answers: answers,
+                    timeTaken: elapsedTime  
+                }),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert("Error submitting quiz: " + data.error);
+                }
+            })
+            .catch(error => {
+                alert("Failed to submit quiz! Please try again.");
+            });
+        }
+    
+        startTimer();
+        loadQuestion();
+    </script>
+    
+</body>
+</html>

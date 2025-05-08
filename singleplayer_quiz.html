@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Singleplayer Quiz | Quiz Craze</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        body {
+            background: linear-gradient(45deg, #ff0080, #ff6600, #ffcc00, #33cc33, #0066ff);
+            background-size: 300% 300%;
+            animation: moveBackground 8s infinite alternate ease-in-out;
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes moveBackground {
+            0% { background-position: left top; }
+            100% { background-position: right bottom; }
+        }
+
+        /* ⏳ FUNKY DIGITAL WATCH TIMER */
+        .timer-container {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            width: 160px;
+            height: 80px;
+            background: linear-gradient(135deg, #000, #222);
+            border-radius: 20px;
+            border: 4px solid yellow;
+            box-shadow: 0px 0px 15px yellow, 0px 0px 25px magenta;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: cyan;
+            text-shadow: 2px 2px 8px yellow;
+            font-family: 'Orbitron', sans-serif;
+            animation: glowEffect 1.5s infinite alternate;
+        }
+
+        @keyframes glowEffect {
+            0% { box-shadow: 0px 0px 15px yellow; }
+            100% { box-shadow: 0px 0px 30px magenta; }
+        }
+
+        /* 🏆 QUIZ CONTAINER */
+        .quiz-container {
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 0 25px cyan;
+            border: 2px solid yellow;
+            display: none;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .question {
+            font-size: 22px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px magenta;
+        }
+
+        .options label {
+            display: block;
+            padding: 14px;
+            margin: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .options label:hover {
+            background: cyan;
+            color: black;
+            transform: scale(1.08);
+        }
+
+        .next-btn, .submit-btn {
+            margin-top: 20px;
+            padding: 15px 35px;
+            font-size: 20px;
+            background: linear-gradient(90deg, red, yellow);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.8);
+            transition: 0.3s;
+            display: none;
+        }
+
+        .next-btn:hover, .submit-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px magenta;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ⏳ FUNKY DIGITAL WATCH TIMER -->
+    <div class="timer-container">
+        <span id="timer">00:00</span>
+    </div>
+
+    <!-- 🏆 QUIZ CONTAINER -->
+    <div class="quiz-container" id="quiz-container">
+        <h2>⚡ Singleplayer Quiz Battle</h2>
+        <div id="question-box"></div>
+        <button class="next-btn" id="next-question" onclick="nextQuestion()">NEXT QUESTION</button>
+        <button class="submit-btn" id="submit-quiz" onclick="submitQuiz()">SUBMIT QUIZ</button>
+    </div>
+
+    <script>
+        let timeTaken = 0;
+        let currentQuestionIndex = 0;
+        let questions = [];
+        let score = 0;
+
+        function startTimer() {
+            setInterval(() => {
+                timeTaken++;
+                let minutes = Math.floor(timeTaken / 60);
+                let seconds = timeTaken % 60;
+                document.getElementById("timer").innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        async function fetchQuestions() {
+            let category = new URLSearchParams(window.location.search).get('category');
+
+            try {
+                const response = await fetch(`/get_questions?category=${category}`);
+                const data = await response.json();
+
+                if (!response.ok) throw new Error("Failed to fetch questions");
+
+                questions = data.map(q => ({
+                    question: q.question,
+                    options: [q.option1, q.option2, q.option3, q.option4],
+                    correctAnswerIndex: parseInt(q.correct_option) - 1
+                }));
+
+                document.getElementById("quiz-container").style.display = "block";
+                loadQuestion();
+            } catch (error) {
+                document.getElementById("question-box").innerHTML = `<h2 style="color: red;">⚠️ ${error.message}</h2>`;
+            }
+        }
+
+        function loadQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                document.getElementById("submit-quiz").style.display = "block";
+                document.getElementById("next-question").style.display = "none";
+                return;
+            }
+
+            let q = questions[currentQuestionIndex];
+
+            let optionsHTML = q.options.map((opt, index) => `
+                <label><input type="radio" name="answer" value="${index}"> ${opt}</label><br>
+            `).join("");
+
+            document.getElementById("question-box").innerHTML = `
+                <div class="question">${currentQuestionIndex + 1}. ${q.question}</div>
+                <div class="options">${optionsHTML}</div>
+            `;
+
+            document.getElementById("next-question").style.display = currentQuestionIndex === questions.length - 1 ? "none" : "block";
+            document.getElementById("submit-quiz").style.display = currentQuestionIndex === questions.length - 1 ? "block" : "none";
+        }
+
+        function nextQuestion() {
+            let selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            
+            if (!selectedAnswer) {
+                alert("⚠️ Please select an answer before proceeding!");
+                return;
+            }
+        
+            let selectedIndex = parseInt(selectedAnswer.value);
+            let correctIndex = questions[currentQuestionIndex].correctAnswerIndex;
+
+            if (selectedIndex === correctIndex) {
+                score++;
+            }
+
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function submitQuiz() {
+            sessionStorage.setItem("finalScore", score);
+            sessionStorage.setItem("totalTime", timeTaken);
+
+            fetch('/submit_singleplayer_score', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ category: "C", score: score, time_taken: timeTaken })
+            }).then(() => {
+                window.location.href = "/singleplayer_result";
+                
+            }).catch(error => console.error("❌ Error:", error));
+        }
+
+        window.onload = function() {
+            startTimer();
+            fetchQuestions();
+        };
+    </script>
+</body>
+</html>

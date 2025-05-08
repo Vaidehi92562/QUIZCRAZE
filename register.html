@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💥 Register | Quiz Craze</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Bangers', cursive; }
+
+        body {
+            display: flex;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ff6a00, #ffbe0b);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Left Half - Background Image */
+        .left-half {
+            width: 50%;
+            background: url("/static/image2.jpeg") no-repeat center center;
+            background-size: cover;
+            animation: slideInLeft 1s ease-in-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Right Half - Gradient Background */
+        .right-half {
+            width: 50%;
+            background: linear-gradient(135deg, #ff512f, #ff9b44);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .register-container {
+            position: relative;
+            width: 420px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 10px 10px 0px black;
+            border: 4px solid black;
+            animation: scaleIn 0.7s ease-in-out;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .register-container:hover {
+            transform: scale(1.05);
+        }
+
+        /* 🔥 BOOM Effect */
+        .boom {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: red;
+            color: white;
+            font-size: 18px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            border: 3px solid black;
+            box-shadow: 3px 3px 0px black;
+        }
+
+        /* 🔥 Fixed Welcome Text Visibility */
+        .welcome-text {
+            font-size: 40px;
+            color: #ffcc00;
+            text-shadow: 5px 5px 0px black, 8px 8px 0px red;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: neonGlow 1s infinite alternate;
+        }
+
+        @keyframes neonGlow {
+            from { text-shadow: 5px 5px 0px black, 8px 8px 0px red; }
+            to { text-shadow: 7px 7px 0px black, 10px 10px 0px yellow; }
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid black;
+            border-radius: 8px;
+            background: yellow;
+            color: black;
+            font-size: 18px;
+            outline: none;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 5px 5px 0px black;
+        }
+
+        input::placeholder {
+            color: black;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 22px;
+            background: black;
+            color: yellow;
+            border: 2px solid black;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 0px black;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.1);
+            background: red;
+            color: white;
+            box-shadow: 8px 8px 0px black;
+            animation: pulse 0.4s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1.1); }
+            to { transform: scale(1.2); }
+        }
+
+        .login-link {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .login-link a {
+            color: red;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .login-link a:hover {
+            text-shadow: 3px 3px 0px black;
+        }
+    </style>
+</head>
+<body>
+    <div class="left-half"></div>
+    <div class="right-half">
+        <div class="register-container">
+            <div class="boom">💥 SIGN UP NOW!</div>
+            <h1 class="welcome-text">JOIN THE CRAZE!</h1>
+            <form action="/register" method="POST">
+                <input type="text" name="username" placeholder="Enter Username" required>
+                <input type="email" name="email" placeholder="Enter Email" required>
+                <input type="password" name="password" placeholder="Enter Password" required>
+                <button class="submit-btn" type="submit">Register</button>
+            </form>
+            <p class="login-link">Already have an account? <a href="/login">Login</a></p>
+        </div>
+    </div>
+</body>
+</html>

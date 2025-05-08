@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Lobby</title>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Rubik Mono One', sans-serif;
+            background: linear-gradient(135deg, #ff0099, #ffcc00, #00ff99);
+            color: black;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            width: 40%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: #000;
+            border-right: 10px solid black;
+        }
+
+        .comic-image {
+            width: 85%;
+            max-width: 550px;
+            border: 12px solid white;
+            box-shadow: 10px 10px 0px black;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .comic-image:hover {
+            transform: scale(1.1) rotate(-3deg);
+        }
+
+        .right-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: backgroundAnimation 4s infinite alternate;
+        }
+
+        @keyframes backgroundAnimation {
+            0% { background-color: #ff6600; }
+            50% { background-color: #ffcc00; }
+            100% { background-color: #ff0099; }
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            text-shadow: 5px 5px 0px #ff0000, 7px 7px 15px yellow;
+            letter-spacing: 2px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-10px); }
+        }
+
+        .game-code {
+            font-size: 2.5rem;
+            background: #000;
+            color: yellow;
+            padding: 15px 25px;
+            border: 5px solid white;
+            text-shadow: 4px 4px 0px #ff0000;
+            display: inline-block;
+            margin-top: 20px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .game-code:hover {
+            transform: scale(1.1);
+        }
+
+        .player-list {
+            width: 60%;
+            max-height: 220px;
+            overflow-y: auto;
+            background: white;
+            padding: 10px;
+            border: 6px solid black;
+            text-align: left;
+            font-size: 1.8rem;
+            margin-top: 20px;
+            box-shadow: 6px 6px 0px black;
+            transition: transform 0.2s;
+        }
+
+        .player-list:hover {
+            transform: scale(1.05);
+        }
+
+        .start-btn {
+            background: red;
+            color: white;
+            font-size: 2.2rem;
+            padding: 18px 35px;
+            border: 6px solid black;
+            cursor: pointer;
+            font-family: 'Rubik Mono One', sans-serif;
+            transition: all 0.2s ease-in-out;
+            display: inline-block;
+            margin-top: 25px;
+            box-shadow: 7px 7px 0px black;
+            display: none; /* Hidden by default, only host sees it */
+        }
+
+        .start-btn:hover {
+            background: yellow;
+            color: black;
+            transform: scale(1.1) rotate(-2deg);
+            box-shadow: 9px 9px 0px black;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="left-panel">
+        <img src="https://th.bing.com/th/id/OIG1.UEJjRlPCygF9P1oucRFY?w=1024&h=1024&rs=1&pid=ImgDetMain" alt="Lobby Comic Image" class="comic-image">
+    </div>
+
+    <div class="right-panel">
+        <h1>MULTIPLAYER LOBBY</h1>
+        <p class="game-code">GAME CODE: <strong id="game-code"></strong></p>
+        <h3>PLAYERS IN LOBBY:</h3>
+        <ul id="player-list" class="player-list"></ul>
+        <button id="start-quiz" class="start-btn">🚀 START QUIZ 🚀</button>
+    </div>
+
+    <script>
+        let socket = io();
+        let username = sessionStorage.getItem("username");
+        let gameCode = new URLSearchParams(window.location.search).get("gameCode");
+    
+        document.getElementById("game-code").textContent = gameCode;
+    
+        if (!username) {
+            username = prompt("Enter your username:");
+            sessionStorage.setItem("username", username);
+        }
+    
+        // ✅ Function to fetch players and update UI
+        function fetchPlayers() {
+            fetch(`/get_players?gameCode=${gameCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    const playerList = document.getElementById("player-list");
+                    playerList.innerHTML = "";
+                    let isHost = false;
+    
+                    data.players.forEach(player => {
+                        const li = document.createElement("li");
+                        li.textContent = `${player.username} ${player.is_host ? "(Host)" : ""}`;
+                        playerList.appendChild(li);
+    
+                        if (player.username === username && player.is_host) {
+                            isHost = true;
+                        }
+                    });
+    
+                    document.getElementById("start-quiz").style.display = isHost ? "block" : "none";
+                })
+                .catch(error => console.error("Error fetching players:", error));
+        }
+    
+        setInterval(fetchPlayers, 3000);
+        fetchPlayers();
+    
+        // ✅ Fix: Ensure all players receive the event and redirect correctly
+        socket.on("quiz_started", function(data) {
+            console.log("🚀 Quiz started! Redirecting to quiz room...");
+            window.location.href = `/multi_quiz_room?gameCode=${data.gameCode}`;
+        });
+    
+        // ✅ Fix: Ensure Start Quiz button correctly starts the game
+        document.getElementById("start-quiz").addEventListener("click", function() {
+            console.log("📢 Sending start quiz request...");
+    
+            fetch('/start_quiz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gameCode: gameCode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("✅ Quiz started! Waiting for players to be redirected...");
+                } else {
+                    alert("⚠️ Error: " + data.error);
+                }
+            })
+            .catch(error => console.error("❌ Error starting quiz:", error));
+        });
+    
+        // ✅ Ensure each player joins the Socket.IO room
+        socket.emit("join_room", { gameCode: gameCode });
+    
+        // ✅ Fix: Ensure the user is actually redirected after the event
+        socket.on("quiz_started", function(data) {
+            console.log("🔔 Received 'quiz_started' event. Redirecting...");
+            setTimeout(() => {
+                window.location.href = `/multi_quiz_room?gameCode=${data.gameCode}`;
+            }, 1000); // Small delay to ensure all players get the event
+        });
+    </script>
+    
+</body>
+</html>

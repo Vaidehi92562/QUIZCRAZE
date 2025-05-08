@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Quiz Completed | Quiz Craze</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Press Start 2P', cursive; }
+        body {
+            background: linear-gradient(120deg, #ff0000, #ff8000, #ffcc00);
+            color: white;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            animation: bgMove 10s infinite alternate ease-in-out;
+        }
+
+        @keyframes bgMove {
+            0% { background: radial-gradient(circle, #ff0000,#ae00ff,hsl(210, 100.00%, 50.00%)); }
+            100% { background: radial-gradient(circle, #ff00ff, #ff6600,hsl(236, 100.00%, 50.00%)); }
+        }
+
+        /* MAIN LAYOUT */
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* LEFT IMAGE SECTION */
+        .left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .left img {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* RIGHT RESULT BOX */
+        .right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .result-container {
+            background: rgba(30, 30, 30, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 50px cyan;
+            border: 4px solid magenta;
+            animation: popIn 0.6s ease-out;
+            width: 80%;
+            text-align: center;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        h1 {
+            font-size: 28px;
+            text-shadow: 0 0 15px cyan, 0 0 20px yellow;
+        }
+
+        .score-box {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px cyan;
+            color: yellow;
+            font-size: 22px;
+        }
+
+        .btn {
+            margin-top: 20px;
+            padding: 15px 25px;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+            box-shadow: 0 0 20px yellow;
+            font-weight: bold;
+            border: none;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px magenta;
+        }
+
+        .certificate-btn { background: cyan; color: black; }
+        .play-again-btn { background: magenta; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- LEFT IMAGE SECTION -->
+        <div class="left">
+            <img src="https://th.bing.com/th/id/OIG2.YpnXzV7MGxfjMAMy_V5o?pid=ImgGn" alt="Success Image">
+        </div>
+
+        <!-- RIGHT RESULT BOX -->
+        <div class="right">
+            <div class="result-container">
+                <h1>🏆 CONGRATULATIONS! 🎉</h1>
+                <div class="score-box">
+                    🎯 Score: <span id="final-score">Loading...</span><br>
+                    ⏳ Time Taken: <span id="final-time">Loading...</span>
+                </div>
+                <button class="btn certificate-btn" onclick="generateCertificate()">🏅 GENERATE CERTIFICATE</button>
+                <button class="btn play-again-btn" onclick="window.location.href='/dashboard'">🔄 PLAY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✅ Fetch score & time from sessionStorage
+        let score = sessionStorage.getItem("finalScore");
+        let time = sessionStorage.getItem("totalTime");
+
+        if (!score) score = "0";
+        if (!time) time = "0";
+
+        document.getElementById("final-score").innerText = `${score}/10`;
+        document.getElementById("final-time").innerText = `${time} sec`;
+
+        function generateCertificate() {
+            let userName = prompt("Enter your name for the certificate:");
+            if (userName) {
+                let certWindow = window.open("", "_blank");
+                certWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Certificate of Participation</title>
+                        <style>
+                            @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@500;700&display=swap');
+                            
+                            body {
+                                text-align: center;
+                                font-family: 'Poppins', sans-serif;
+                                background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+                                padding: 50px;
+                                color: white;
+                            }
+        
+                            .certificate {
+                                background: white;
+                                padding: 60px;
+                                border-radius: 20px;
+                                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                                width: 70%;
+                                margin: auto;
+                                max-width: 800px;
+                                border: 6px solid gold;
+                                text-align: center;
+                            }
+        
+                            h1 {
+                                font-family: 'Playfair Display', serif;
+                                font-size: 42px;
+                                color: #333;
+                                margin-bottom: 10px;
+                            }
+        
+                            .medal {
+                                font-size: 80px;
+                                text-shadow: 0 0 15px gold;
+                            }
+        
+                            .cert-name {
+                                font-size: 26px;
+                                font-weight: 600;
+                                color: #444;
+                                text-transform: uppercase;
+                                margin: 10px 0;
+                            }
+        
+                            .cert-score {
+                                font-size: 22px;
+                                margin-top: 15px;
+                                color: #000;
+                                font-weight: bold;
+                            }
+        
+                            .cert-date {
+                                font-size: 18px;
+                                margin-top: 20px;
+                                font-style: italic;
+                                color: #555;
+                            }
+        
+                            .divider {
+                                width: 50%;
+                                height: 4px;
+                                background: gold;
+                                margin: 20px auto;
+                                border-radius: 10px;
+                            }
+        
+                            .print-btn {
+                                margin-top: 30px;
+                                padding: 15px 30px;
+                                font-size: 20px;
+                                background: linear-gradient(45deg, #FFD700, #FFA500);
+                                color: white;
+                                border: none;
+                                border-radius: 50px;
+                                cursor: pointer;
+                                font-weight: bold;
+                                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                                transition: all 0.3s ease;
+                            }
+        
+                            .print-btn:hover {
+                                transform: scale(1.1);
+                                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="certificate">
+                            <div class="medal">🏆</div>
+                            <h1>Certificate of Participation</h1>
+                            <div class="divider"></div>
+                            <p>Awarded To:</p>
+                            <p class="cert-name">${userName}</p>
+                            <p>For outstanding performance in the <b>Quiz Craze</b> challenge.</p>
+                            <p class="cert-score">🏅 Score: <b>${score}/10</b></p>
+                            <p class="cert-score">⏳ Time Taken: <b>${time} sec</b></p>
+                            <p class="cert-date">📅 Date: ${new Date().toLocaleDateString()}</p>
+                            <button class="print-btn" onclick="window.print()">🖨 Print Certificate</button>
+                        </div>
+                    </body>
+                    </html>
+                `);
+            }
+        }
+        
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 Dashboard | Quiz Craze</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        body {
+            background: linear-gradient(45deg, #ff00ff, #ff8800, #00ffff);
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Left and Right Section */
+        .left-section, .right-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .left-section img, .right-section img {
+            width: 500px; /* Increased Image Size */
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Center Section (Main Dashboard Box) */
+        .center-section {
+            flex: 1.5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 10px 10px 0px black;
+            border: 4px solid black;
+            text-align: center;
+            padding: 40px;
+            width: 450px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        h2 {
+            color: black;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Avatar */
+        .avatar-box {
+            width: 120px;
+            height: 120px;
+            background: yellow;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: black;
+            margin: 10px auto;
+            border: 3px solid black;
+            box-shadow: 5px 5px 0px black;
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* Buttons */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .dashboard-btn {
+            background: black;
+            color: yellow;
+            font-size: 18px;
+            padding: 15px;
+            border: 3px solid black;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 0px black;
+            transition: 0.3s;
+            font-weight: bold;
+            animation: neonGlow 1s infinite alternate ease-in-out;
+        }
+
+        @keyframes neonGlow {
+            from { box-shadow: 5px 5px 10px magenta; }
+            to { box-shadow: 5px 5px 20px cyan; }
+        }
+
+        .dashboard-btn:hover {
+            transform: scale(1.1);
+            background: red;
+            color: white;
+            box-shadow: 8px 8px 0px black;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Left Section (Image) -->
+    <div class="left-section">
+        <img src="{{ url_for('static', filename='image9.jpeg') }}" alt="Left Image">
+    </div>
+
+    <!-- Center Section (Dashboard Box) -->
+    <div class="center-section">
+        <div class="dashboard-container">
+            <h2>🎉 Welcome, <span id="username">{{ session['username'] if 'username' in session else 'Player' }}</span>!</h2>
+            <div class="avatar-box">
+                <img src="{{ url_for('static', filename='avatar.png') }}" alt="User Avatar">
+            </div>
+
+            <div class="button-container">
+                <button class="dashboard-btn" onclick="window.location.href='/singleplayer'">Singleplayer Mode</button>
+                <button class="dashboard-btn" onclick="window.location.href='/multiplayer'">Multiplayer Mode</button>
+                <button class="dashboard-btn" onclick="window.location.href='/profile'">Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Section (Image) -->
+    <div class="right-section">
+        <img src="{{ url_for('static', filename='image8.jpeg') }}" alt="Right Image">
+    </div>
+
+</body>
+</html>
